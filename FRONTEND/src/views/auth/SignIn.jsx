@@ -1,49 +1,74 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, Plus, Loader2 } from 'lucide-react';
-import Confetti from 'react-confetti';
+import React, { useState } from "react";
+import { X, CheckCircle, Plus, Loader2 } from "lucide-react";
+import Confetti from "react-confetti";
 import InputField from "components/fields/InputField";
 import Checkbox from "components/checkbox";
 
 // IMPORTING IMAGES
-import one from '../../../src/assets/signin/1.png';
-import two from '../../../src/assets/signin/2.png';
-import three from '../../../src/assets/signin/3.png';
-import four from '../../../src/assets/signin/4.png';
-import five from '../../../src/assets/signin/5.png';
+import one from "../../../src/assets/signin/1.png";
+import two from "../../../src/assets/signin/2.png";
+import three from "../../../src/assets/signin/3.png";
+import four from "../../../src/assets/signin/4.png";
+import five from "../../../src/assets/signin/5.png";
 
 const AuthFlow = () => {
-  const [currentView, setCurrentView] = useState('options');
+  const [currentView, setCurrentView] = useState("options");
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedDisability, setSelectedDisability] = useState(null);
   const [disabilityRange, setDisabilityRange] = useState(50);
-  const [newInterest, setNewInterest] = useState('');
+  const [newInterest, setNewInterest] = useState("");
   const [selectedInterests, setSelectedInterests] = useState([]);
+
   const [userData, setUserData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    age: '',
-    location: '',
+    fullName: "",
+    email: "",
+    password: "",
+    age: "",
+    location: "",
     interests: [],
     disability: null,
     disabilityRange: 50,
   });
 
   const [allInterests, setAllInterests] = useState([
-    'Adaptive Sports', 'Assistive Technology', 'Art Therapy',
-    'Support Groups', 'Accessible Travel', 'Music Therapy',
-    'Inclusive Education', 'Disability Advocacy', 'Accessible Gaming'
+    "Adaptive Sports",
+    "Assistive Technology",
+    "Art Therapy",
+    "Support Groups",
+    "Accessible Travel",
+    "Music Therapy",
+    "Inclusive Education",
+    "Disability Advocacy",
+    "Accessible Gaming",
   ]);
 
   const disabilities = [
-    { id: 1, title: 'Visual Impairment', img: one },
-    { id: 2, title: 'Hearing Impairment', img: two },
-    { id: 3, title: 'Physical Disability', img: three },
-    { id: 4, title: 'Cognitive Disability', img: four },
-    { id: 5, title: 'Speech Disability', img: five }
+    { id: 1, title: "Visual Impairment", img: one },
+    { id: 2, title: "Hearing Impairment", img: two },
+    { id: 3, title: "Physical Disability", img: three },
+    { id: 4, title: "Cognitive Disability", img: four },
+    { id: 5, title: "Speech Disability", img: five },
   ];
+
+  const handleNextStep = () => {
+    if (currentStep === 1) {
+        if (!userData.fullName || !userData.email || !userData.password || !userData.age || !userData.location) {
+            alert("Please fill in all required fields.");
+            return;
+        }
+    } else if (currentStep === 2) {
+        // Optionally validate interests
+        if (userData.interests.length === 0) {
+            alert("Please select at least one interest.");
+            return;
+        }
+    }
+    
+    setCurrentStep(currentStep + 1);
+};
+
 
   const handleAuthOption = (option) => {
     setCurrentView(option);
@@ -51,21 +76,65 @@ const AuthFlow = () => {
 
   const handleAddInterest = () => {
     const trimmedInterest = newInterest.trim();
-    if (trimmedInterest && !selectedInterests.includes(trimmedInterest)) {
-      setSelectedInterests(prev => [...prev, trimmedInterest]);
-      setNewInterest('');
+    if (trimmedInterest && !userData.interests.includes(trimmedInterest)) {
+      setUserData((prev) => ({
+        ...prev,
+        interests: [...prev.interests, trimmedInterest],
+      }));
+      setNewInterest("");
     }
   };
 
+  const handleInputChange = (field, value) => {
+    console.log(`Updating ${field} to ${value}`);
+    setUserData(prev => ({ ...prev, [field]: value }));
+};
+
+  const handleInterestToggle = (interest) => {
+    setUserData((prev) => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter((i) => i !== interest)
+        : [...prev.interests, interest],
+    }));
+  };
+
+  const handleDisabilitySelection = (disability) => {
+    setSelectedDisability(disability); // for UI state
+    setUserData(prev => ({
+      ...prev,
+      disability: {  // Store the full disability object
+        id: disability.id,
+        title: disability.title
+      }
+    }));
+  };
+
+  const handleDisabilityRangeChange = (value) => {
+    setUserData((prev) => ({
+      ...prev,
+      disabilityRange: value,
+    }));
+  };
+
   const handleRegisterComplete = () => {
+    if (!userData.fullName || !userData.email || !userData.password || !userData.age || !userData.location) {
+        alert("Please fill all required fields.");
+        return;
+    }
     setIsProcessing(true);
+    const finalData = { ...userData, registeredAt: new Date().toISOString() };
+    console.log(finalData);
+    localStorage.setItem('userData', JSON.stringify(finalData));
+
     setTimeout(() => {
+      // Save complete user data to localStorage
+      localStorage.setItem("userData", JSON.stringify(finalData));
       setIsProcessing(false);
       setShowSuccess(true);
-      const finalData = { ...userData, interests: selectedInterests, disability: selectedDisability, disabilityRange };
-      localStorage.setItem('userData', JSON.stringify(finalData));
+
       setTimeout(() => {
-        setCurrentView('signin');
+        setCurrentView("signin");
         setCurrentStep(1);
         setShowSuccess(false);
       }, 3000);
@@ -104,11 +173,11 @@ const AuthFlow = () => {
     }
   `;
 
-  if (currentView === 'options') {
+  if (currentView === "options") {
     return (
       <>
         <style>{styles}</style>
-        <div className="mt-16 mb-16 flex h-full w-full items-center justify-center px-2 md:mx-0 md:px-0 lg:mb-10 lg:items-center">
+        <div className="mb-16 mt-16 flex h-full w-full items-center justify-center px-2 md:mx-0 md:px-0 lg:mb-10 lg:items-center">
           <div className="mt-[30vh] w-full max-w-full flex-col items-center md:pl-4 lg:pl-0 xl:max-w-[420px]">
             <h4 className="mb-2.5 text-4xl font-bold text-navy-700 dark:text-white">
               Welcome
@@ -117,13 +186,13 @@ const AuthFlow = () => {
               Choose how you want to get started!
             </p>
             <button
-              onClick={() => handleAuthOption('register')}
+              onClick={() => handleAuthOption("register")}
               className="linear mb-3 w-full rounded-xl bg-[rgba(67,24,255,0.85)] py-[12px] text-base font-medium text-white transition duration-200 hover:bg-[rgba(67,24,255,0.95)]"
             >
               Create Account
             </button>
             <button
-              onClick={() => handleAuthOption('signin')}
+              onClick={() => handleAuthOption("signin")}
               className="linear w-full rounded-xl border-2 border-gray-200 py-[12px] text-base font-medium text-navy-700 transition duration-200 hover:bg-gray-100 dark:text-white"
             >
               Sign In
@@ -134,16 +203,16 @@ const AuthFlow = () => {
     );
   }
 
-  if (currentView === 'signin') {
+  if (currentView === "signin") {
     return (
       <>
         <style>{styles}</style>
-        <div className="mt-16 mb-16 flex h-screen w-full items-center justify-center px-2 md:mx-0 md:px-0 lg:mb-10 lg:items-center">
+        <div className="mb-16 mt-16 flex h-screen w-full items-center justify-center px-2 md:mx-0 md:px-0 lg:mb-10 lg:items-center">
           <div className="w-full max-w-md">
-            <h4 className="mb-2.5 text-4xl font-bold text-navy-700 dark:text-white text-center">
+            <h4 className="mb-2.5 text-center text-4xl font-bold text-navy-700 dark:text-white">
               Sign In
             </h4>
-            <p className="mb-9 text-base text-gray-600 text-center">
+            <p className="mb-9 text-center text-base text-gray-600">
               Enter your email and password to sign in!
             </p>
             <InputField
@@ -176,8 +245,12 @@ const AuthFlow = () => {
                 Forgot Password?
               </a>
             </div>
-            <button className="linear mt-2 w-full rounded-xl bg-[rgba(67,24,255,0.85)] py-[12px] text-base font-medium text-white transition duration-200 hover:bg-[rgba(67,24,255,0.95)]" 
-            onClick={()=>{ window.location.href = '/admin/default'}}>
+            <button
+              className="linear mt-2 w-full rounded-xl bg-[rgba(67,24,255,0.85)] py-[12px] text-base font-medium text-white transition duration-200 hover:bg-[rgba(67,24,255,0.95)]"
+              onClick={() => {
+                window.location.href = "/admin/default";
+              }}
+            >
               Sign In
             </button>
           </div>
@@ -186,247 +259,263 @@ const AuthFlow = () => {
     );
   }
 
-  if (currentView === 'register') {
+  if (currentView === "register") {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <style>{styles}</style>
         {showSuccess && <Confetti />}
-        <div className="fixed inset-0 bg-white dark:bg-navy-900 flex items-center justify-center">
-          <div className="w-full max-w-2xl mx-auto p-6 bg-white dark:bg-navy-800 rounded-lg shadow-lg space-y-8">
+        <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-navy-900">
+          <div className="mx-auto w-full max-w-2xl space-y-8 rounded-lg bg-white p-6 shadow-lg dark:bg-navy-800">
             {!showSuccess && !isProcessing ? (
               <>
-      <div className="mb-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h4 className="text-4xl font-bold text-navy-700 dark:text-white mb-2">
-              {currentStep === 1 && "Create Account"}
-              {currentStep === 2 && "Your Interests"}
-              {currentStep === 3 && "Disability Type"}
-            </h4>
-            <p className="text-base text-gray-600">
-              {currentStep === 1 && "Fill in your details to get started"}
-              {currentStep === 2 && "Select or add your interests"}
-              {currentStep === 3 && "Select your disability type"}
-            </p>
+                <div className="mb-8">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="mb-2 text-4xl font-bold text-navy-700 dark:text-white">
+                        {currentStep === 1 && "Create Account"}
+                        {currentStep === 2 && "Your Interests"}
+                        {currentStep === 3 && "Disability Type"}
+                      </h4>
+                      <p className="text-base text-gray-600">
+                        {currentStep === 1 &&
+                          "Fill in your details to get started"}
+                        {currentStep === 2 && "Select or add your interests"}
+                        {currentStep === 3 && "Select your disability type"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleAuthOption("options")}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
+                </div>
+
+                {currentStep === 1 && (
+                  <div className="space-y-4">
+                    <InputField
+                      variant="auth"
+                      label="Full Name*"
+                      placeholder="Enter your full name"
+                      id="name"
+                      type="text"
+                      value={userData.fullName}
+                      onChange={(e) =>
+                        handleInputChange("fullName", e.target.value)
+                      }
+                    />
+                    <InputField
+                      variant="auth"
+                      label="Email*"
+                      placeholder="mail@simmmple.com"
+                      id="email"
+                      type="email"
+                      value={userData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                    />
+                    <InputField
+                      variant="auth"
+                      label="Password*"
+                      placeholder="Min. 8 characters"
+                      id="password"
+                      type="password"
+                      value={userData.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                    />
+                    <InputField
+                      variant="auth"
+                      label="Age*"
+                      placeholder="Enter your age"
+                      id="age"
+                      type="number"
+                      value={userData.age}
+                      onChange={(e) => handleInputChange("age", e.target.value)}
+                    />
+                    <InputField
+                      variant="auth"
+                      label="Location*"
+                      placeholder="Enter your location"
+                      id="location"
+                      type="text"
+                      value={userData.location}
+                      onChange={(e) =>
+                        handleInputChange("location", e.target.value)
+                      }
+                    />
+                  </div>
+                )}
+
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <div className="relative flex items-center gap-3">
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={newInterest}
+                          onChange={(e) => setNewInterest(e.target.value)}
+                          className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-[rgba(67,24,255,0.85)] focus:outline-none"
+                          placeholder="Add new interest"
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              handleAddInterest();
+                            }
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddInterest}
+                        className="flex h-[44px] min-w-[44px] items-center justify-center rounded-xl bg-[rgba(67,24,255,0.85)] text-white transition-colors hover:bg-[rgba(67,24,255,0.95)]"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                      {userData.interests.map((interest) => (
+                        <button
+                          key={interest}
+                          onClick={() => handleInterestToggle(interest)}
+                          className="rounded-xl bg-[rgba(67,24,255,0.85)] px-4 py-2 text-white transition-all duration-200 hover:bg-[rgba(67,24,255,0.95)]"
+                        >
+                          {interest}
+                        </button>
+                      ))}
+
+                      {allInterests.map(
+                        (interest) =>
+                          !userData.interests.includes(interest) && (
+                            <button
+                              key={interest}
+                              onClick={() => handleInterestToggle(interest)}
+                              className="rounded-xl bg-gray-100 px-4 py-2 text-navy-700 transition-all duration-200 hover:bg-gray-200"
+                            >
+                              {interest}
+                            </button>
+                          )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 3 && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                    {disabilities.map((disability) => (
+  <button
+    key={disability.id}
+    className={`rounded-xl border p-4 transition ${
+      selectedDisability?.id === disability.id
+        ? "border-[rgba(67,24,255,0.85)] bg-[rgba(67,24,255,0.1)]"
+        : "hover:border-gray-300"
+    }`}
+    onClick={() => handleDisabilitySelection(disability)}  // Make sure this is being called
+  >
+    <img
+      src={disability.img}
+      alt={disability.title}
+      className="mb-2 h-32 w-full rounded-lg object-cover"
+    />
+    <h4 className="text-center font-medium text-navy-700 dark:text-white">
+      {disability.title}
+    </h4>
+  </button>
+))}
+                    </div>
+                    {selectedDisability && (
+                      <div className="mt-4 rounded-xl bg-gray-50 p-6">
+                        <div className="mb-2 flex items-center justify-between">
+                          <label className="text-sm font-medium text-gray-600">
+                            Disability Range
+                          </label>
+                          <span className="text-sm font-medium text-[rgba(67,24,255,0.85)]">
+                            {disabilityRange}%
+                          </span>
+                        </div>
+                        <div className="relative mb-4 h-2">
+                          <div className="absolute inset-0 rounded-full bg-gray-200"></div>
+                          <div
+                            className="absolute inset-0 rounded-full bg-[rgba(67,24,255,0.85)] transition-all duration-200"
+                            style={{ width: `${disabilityRange}%` }}
+                          ></div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={disabilityRange}
+                            onChange={(e) => setDisabilityRange(e.target.value)}
+                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            style={{ WebkitAppearance: "none" }}
+                          />
+                        </div>
+                        <div className="mt-1 flex justify-between text-xs text-gray-500">
+                          <span>Mild (0-30%)</span>
+                          <span>Moderate (31-70%)</span>
+                          <span>Severe (71-100%)</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-8 flex justify-between">
+                  {currentStep > 1 && (
+                    <button
+                      onClick={() => setCurrentStep(currentStep - 1)}
+                      className="rounded-xl border-2 px-6 py-2 transition hover:bg-gray-100"
+                    >
+                      Previous
+                    </button>
+                  )}
+                  <button onClick={() => {
+    if (currentStep < 3) {
+        handleNextStep();
+    } else {
+        handleRegisterComplete();
+    }
+}} className="px-6 py-2 bg-[rgba(67,24,255,0.85)] text-white rounded-xl hover:bg-[rgba(67,24,255,0.95)] transition ml-auto">
+    {currentStep === 3 ? 'Complete' : 'Next'}
+</button>
+                </div>
+              </>
+            ) : isProcessing ? (
+              <div className="py-12 text-center">
+                <div className="mb-4 flex justify-center">
+                  <Loader2
+                    size={64}
+                    className="animate-spin text-[rgba(67,24,255,0.85)]"
+                  />
+                </div>
+                <h2 className="mb-2 text-2xl font-bold text-navy-700 dark:text-white">
+                  Creating Your Account
+                </h2>
+                <p className="text-gray-600">Please wait a moment...</p>
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <div className="mb-4 flex justify-center">
+                  <CheckCircle
+                    size={64}
+                    className="animate-bounce text-[rgba(67,24,255,0.85)]"
+                  />
+                </div>
+                <h2 className="mb-2 text-2xl font-bold text-navy-700 dark:text-white">
+                  Account Created Successfully!
+                </h2>
+                <p className="text-gray-600">Redirecting to login...</p>
+              </div>
+            )}
           </div>
-          <button
-            onClick={() => handleAuthOption('options')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X size={24} />
-          </button>
         </div>
       </div>
-
-      {currentStep === 1 && (
-        <div className="space-y-4">
-          <InputField
-            variant="auth"
-            label="Full Name*"
-            placeholder="Enter your full name"
-            id="name"
-            type="text"
-            onChange={(e) => setUserData({ ...userData, fullName: e.target.value })}
-          />
-          <InputField
-            variant="auth"
-            label="Email*"
-            placeholder="mail@simmmple.com"
-            id="email"
-            type="email"
-            onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-          />
-          <InputField
-            variant="auth"
-            label="Password*"
-            placeholder="Min. 8 characters"
-            id="password"
-            type="password"
-            onChange={(e) => setUserData({ ...userData, password: e.target.value })}
-          />
-          <InputField
-            variant="auth"
-            label="Age*"
-            placeholder="Enter your age"
-            id="age"
-            type="number"
-            onChange={(e) => setUserData({ ...userData, age: e.target.value })}
-          />
-          <InputField
-            variant="auth"
-            label="Location*"
-            placeholder="Enter your location"
-            id="location"
-            type="text"
-            onChange={(e) => setUserData({ ...userData, location: e.target.value })}
-          />
-        </div>
-      )}
-
-      {currentStep === 2 && (
-        <div className="space-y-6">
-          <div className="relative flex items-center gap-3">
-            <div className="flex-1">
-              <input
-                type="text"
-                value={newInterest}
-                onChange={(e) => setNewInterest(e.target.value)}
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-[rgba(67,24,255,0.85)]"
-                placeholder="Add new interest"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddInterest();
-                  }
-                }}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleAddInterest}
-              className="min-w-[44px] h-[44px] flex items-center justify-center rounded-xl bg-[rgba(67,24,255,0.85)] text-white hover:bg-[rgba(67,24,255,0.95)] transition-colors"
-            >
-              <Plus className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            {selectedInterests.map((interest) => (
-              <button
-                key={interest}
-                onClick={() => {
-                  setSelectedInterests(prev => prev.filter(i => i !== interest));
-                }}
-                className="px-4 py-2 rounded-xl bg-[rgba(67,24,255,0.85)] text-white hover:bg-[rgba(67,24,255,0.95)] transition-all duration-200"
-              >
-                {interest}
-              </button>
-            ))}
-
-            {allInterests.map((interest) => (
-              !selectedInterests.includes(interest) && (
-                <button
-                  key={interest}
-                  onClick={() => setSelectedInterests(prev => [...prev, interest])}
-                  className="px-4 py-2 rounded-xl bg-gray-100 text-navy-700 hover:bg-gray-200 transition-all duration-200"
-                >
-                  {interest}
-                </button>
-              )
-            ))}
-          </div>
-        </div>
-      )}
-
-      {currentStep === 3 && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {disabilities.map((disability) => (
-              <button
-                key={disability.id}
-                className={`border rounded-xl p-4 transition ${
-                  selectedDisability?.id === disability.id
-                    ? 'border-[rgba(67,24,255,0.85)] bg-[rgba(67,24,255,0.1)]'
-                    : 'hover:border-gray-300'
-                }`}
-                onClick={() => setSelectedDisability(disability)}
-              >
-                <img
-                  src={disability.img}
-                  alt={disability.title}
-                  className="w-full h-32 object-cover rounded-lg mb-2"
-                />
-                <h4 className="font-medium text-center text-navy-700 dark:text-white">
-                  {disability.title}
-                </h4>
-              </button>
-            ))}
-          </div>
-          {selectedDisability && (
-            <div className="mt-4 p-6 bg-gray-50 rounded-xl">
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-gray-600">
-                  Disability Range
-                </label>
-                <span className="text-sm font-medium text-[rgba(67,24,255,0.85)]">
-                  {disabilityRange}%
-                </span>
-              </div>
-              <div className="relative h-2 mb-4">
-                <div className="absolute inset-0 bg-gray-200 rounded-full"></div>
-                <div 
-                  className="absolute inset-0 bg-[rgba(67,24,255,0.85)] rounded-full transition-all duration-200"
-                  style={{ width: `${disabilityRange}%` }}
-                ></div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={disabilityRange}
-                  onChange={(e) => setDisabilityRange(e.target.value)}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  style={{ WebkitAppearance: 'none' }}
-                />
-              </div>
-              <div className="flex justify-between mt-1 text-xs text-gray-500">
-                <span>Mild (0-30%)</span>
-                <span>Moderate (31-70%)</span>
-                <span>Severe (71-100%)</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="mt-8 flex justify-between">
-        {currentStep > 1 && (
-          <button
-            onClick={() => setCurrentStep(currentStep - 1)}
-            className="px-6 py-2 border-2 rounded-xl hover:bg-gray-100 transition"
-          >
-            Previous
-          </button>
-        )}
-        <button
-          onClick={() => {
-            if (currentStep < 3) {
-              setCurrentStep(currentStep + 1);
-            } else {
-              handleRegisterComplete();
-            }
-          }}
-          className="px-6 py-2 bg-[rgba(67,24,255,0.85)] text-white rounded-xl hover:bg-[rgba(67,24,255,0.95)] transition ml-auto"
-        >
-          {currentStep === 3 ? 'Complete' : 'Next'}
-        </button>
-      </div>
-    </>
-) : isProcessing ? (
-  <div className="text-center py-12">
-    <div className="flex justify-center mb-4">
-      <Loader2 size={64} className="text-[rgba(67,24,255,0.85)] animate-spin" />
-    </div>
-    <h2 className="text-2xl font-bold mb-2 text-navy-700 dark:text-white">
-      Creating Your Account
-    </h2>
-    <p className="text-gray-600">Please wait a moment...</p>
-  </div>
-) : (
-  <div className="text-center py-12">
-    <div className="flex justify-center mb-4">
-      <CheckCircle size={64} className="text-[rgba(67,24,255,0.85)] animate-bounce" />
-    </div>
-    <h2 className="text-2xl font-bold mb-2 text-navy-700 dark:text-white">
-      Account Created Successfully!
-    </h2>
-    <p className="text-gray-600">Redirecting to login...</p>
-  </div>
-)}
-</div>
-</div>
-</div>
-);
-}
+    );
+  }
 
   return null;
 };

@@ -70,7 +70,7 @@ export default function Admin(props) {
           <div className="h-full">
             <Navbar
               onOpenSidenav={() => setOpen(true)}
-              logoText={"Swayam AITailwind React"}
+              logoText={"Swayam AI React"}
               brandText={currentRoute}
               secondary={getActiveNavbar(routes)}
               {...rest}
