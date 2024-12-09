@@ -132,7 +132,7 @@ function Swayam() {
   };
 
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex w-full h-[85vh]">
       {/* Left Side - Chat UI */}
       <div className="w-1/2 bg-white border-r p-6 flex flex-col">
         <div
@@ -192,7 +192,7 @@ function Swayam() {
       {/* Right Side */}
       <div className="w-1/2 bg-gray-50 flex items-center justify-center">
         <img
-          src="https://www.dreamstime.com/photos-images/ai-generated-animal.html"
+          src="https://thumbs.dreamstime.com/b/cute-ginger-kitten-blue-eyes-isolated-gray-background-ai-generated-design-instagram-facebook-wall-painting-animal-290678542.jpg"
           alt="AI Generated Animal"
           className="max-w-full max-h-[80%] object-contain"
         />
