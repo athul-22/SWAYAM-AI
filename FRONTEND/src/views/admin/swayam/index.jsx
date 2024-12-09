@@ -1,20 +1,92 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, MicOff } from 'lucide-react';
+import { Send, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+
+import SwayamImage from '../../../assets/SWAYAMAI.png';
+import SwayamGif from '../../../assets/SWAYAMAI.gif';
 
 function Swayam() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechEnabled, setSpeechEnabled] = useState(true);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const chatContainerRef = useRef(null);
+  const speechSynthesisRef = useRef(window.speechSynthesis);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].role === 'assistant' && speechEnabled) {
+      const message = messages[messages.length - 1].content;
+      const containsMalayalam = /[\u0D00-\u0D7F]/.test(message);
+      speakText(message, containsMalayalam);
+    }
+  }, [messages]);
+
+  const speakText = async (text, isMalayalam) => {
+    if (isMalayalam) {
+      try {
+        const audio = new Audio();
+        const encodedText = encodeURIComponent(text);
+        audio.src = `http://localhost:5001/api/text-to-speech?text=${encodedText}&lang=ml`;
+        
+        audio.onplay = () => setIsSpeaking(true);
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          fallbackToWebSpeech();
+        };
+        
+        await audio.play();
+      } catch (error) {
+        console.error('Failed to use TTS service:', error);
+        fallbackToWebSpeech();
+      }
+    } else {
+      fallbackToWebSpeech();
+    }
+
+    function fallbackToWebSpeech() {
+      speechSynthesisRef.current.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voices = speechSynthesisRef.current.getVoices();
+      
+      // Try to find a female voice
+      const femaleVoice = voices.find(voice => 
+        voice.lang.includes(isMalayalam ? 'ml' : 'en') && 
+        voice.name.toLowerCase().includes('female')
+      ) || voices.find(voice => 
+        voice.lang.includes('en') && 
+        voice.name.toLowerCase().includes('female')
+      ) || voices[0];
+
+      utterance.voice = femaleVoice;
+      utterance.pitch = 1.2; // Higher pitch for more feminine voice
+      utterance.rate = 1.0;
+      
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      speechSynthesisRef.current.speak(utterance);
+    }
+  };
+
+  const toggleSpeech = () => {
+    if (isSpeaking) {
+      speechSynthesisRef.current.cancel();
+      setIsSpeaking(false);
+    }
+    setSpeechEnabled(!speechEnabled);
+  };
 
   const startRecording = async () => {
     try {
@@ -135,6 +207,16 @@ function Swayam() {
     <div className="flex w-full h-[85vh]">
       {/* Left Side - Chat UI */}
       <div className="w-1/2 bg-white border-r p-6 flex flex-col">
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={toggleSpeech}
+            className={`p-2 rounded-lg ${
+              speechEnabled ? 'bg-green-100' : 'bg-gray-100'
+            }`}
+          >
+            {speechEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          </button>
+        </div>
         <div
           ref={chatContainerRef}
           className="flex-grow bg-gray-50 rounded-xl mb-4 p-4 overflow-y-auto"
@@ -192,8 +274,9 @@ function Swayam() {
       {/* Right Side */}
       <div className="w-1/2 bg-gray-50 flex items-center justify-center">
         <img
-          src="https://thumbs.dreamstime.com/b/cute-ginger-kitten-blue-eyes-isolated-gray-background-ai-generated-design-instagram-facebook-wall-painting-animal-290678542.jpg"
-          alt="AI Generated Animal"
+          src={isRecording || isSpeaking ? SwayamGif : SwayamImage}
+          alt="AI Assistant"
+          style={{borderRadius: '50%', height:'400px', width:'400px'}}
           className="max-w-full max-h-[80%] object-contain"
         />
       </div>
