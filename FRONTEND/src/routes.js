@@ -12,6 +12,8 @@ import Swayam from "../src/views/admin/swayam/index";
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
+import { FaDiscourse } from "react-icons/fa";
+import Course from "../src/views/admin/course/index";
 import Updates from '../src/views/admin/updates/index';
 
 // Icon Imports
@@ -109,6 +111,14 @@ const routes = [
     showInMenu: false,
   },
   {
+    name: "Course",
+    layout: "/admin",
+    path: "course",
+    icon: <FaDiscourse className="h-6 w-6" />,
+    component: <Course />,
+    showInMenu: true, // Hidden from the menu
+  },
+  {
     name: "Profile",
     layout: "/admin",
     path: "profile",
@@ -131,6 +141,7 @@ const routes = [
     component: <NFTMarketplace />, 
     showInMenu: false, 
   },
+  
 ];
 
 
