@@ -15,10 +15,27 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// Store conversation history (In production, use a database)
-let conversationHistory = [];
+const MAX_TOKENS = 16000; // Set your max token limit
+const conversationHistory = []; // Store conversation history
 
-// Chat endpoint
+// Function to estimate token count (simplified version)
+const estimateTokens = (text) => {
+  // Rough token estimation, OpenAI uses a more accurate method
+  return text.split(' ').length;
+};
+
+// Function to trim conversation history based on token count
+const trimConversationHistory = () => {
+  let totalTokens = conversationHistory.reduce((acc, msg) => acc + estimateTokens(msg.content), 0);
+
+  // Trim conversation history if the total tokens exceed the limit
+  while (totalTokens > MAX_TOKENS && conversationHistory.length > 1) {
+    // Remove the oldest message
+    conversationHistory.shift();
+    totalTokens = conversationHistory.reduce((acc, msg) => acc + estimateTokens(msg.content), 0);
+  }
+};
+
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
@@ -28,6 +45,9 @@ app.post('/api/chat', async (req, res) => {
       role: 'user',
       content: message
     });
+
+    // Trim conversation history to avoid exceeding token limits
+    trimConversationHistory();
 
     // Get response from OpenAI
     const completion = await openai.chat.completions.create({
@@ -52,6 +72,7 @@ app.post('/api/chat', async (req, res) => {
     res.status(500).json({ error: 'Something went wrong' });
   }
 });
+
 
 // Voice transcription endpoint
 app.post('/api/transcribe', async (req, res) => {

@@ -6,9 +6,9 @@ import NFTMarketplace from "views/admin/marketplace";
 import Profile from "views/admin/profile";
 import DataTables from "views/admin/tables";
 import RTLDefault from "views/rtl/default";
-
+import YouTubeVideos from "views/admin/course/YouTubeVideos";
 import Swayam from "../src/views/admin/swayam/index";
-
+import Course from "views/admin/course";
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
@@ -19,7 +19,11 @@ import {
   MdBarChart,
   MdPerson,
   MdLock,
+
 } from "react-icons/md";
+
+import { FaDiscourse } from "react-icons/fa";
+
 
 import { BsRobot } from "react-icons/bs";
 
@@ -94,6 +98,14 @@ const routes = [
     path: "data-tables",
     component: <DataTables />,
     showInMenu: false,
+  },
+  {
+    name: "Course",
+    layout: "/admin",
+    path: "course",
+    icon: <FaDiscourse className="h-6 w-6" />,
+    component: <Course />,
+    showInMenu: true, // Hidden from the menu
   },
   {
     name: "Profile",
