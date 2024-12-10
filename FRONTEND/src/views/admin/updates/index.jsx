@@ -27,23 +27,24 @@ const SkeletonTable = () => (
 
 const SchemesPage = () => {
   const [schemes, setSchemes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [featuredSchemes, setFeaturedSchemes] = useState([]);
-  
+  const [searchTerm, setSearchTerm] = useState(''); // Search term state
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const fetchSchemes = async () => {
       try {
         const response = await fetch('https://api.npoint.io/ccad5dfaade7154feb23');
         const data = await response.json();
         setSchemes(data);
-        
-        // Select 3 random schemes
+
+        // Select 3 random featured schemes
         const randomSchemes = [...data]
           .sort(() => Math.random() - 0.5)
           .slice(0, 3);
         setFeaturedSchemes(randomSchemes);
 
-        // 5 second loading
+        // Simulate 5 seconds loading
         setTimeout(() => {
           setIsLoading(false);
         }, 5000);
@@ -56,8 +57,15 @@ const SchemesPage = () => {
     fetchSchemes();
   }, []);
 
-  const remainingSchemes = schemes.filter(
-    scheme => !featuredSchemes.includes(scheme)
+  // Filter schemes based on the search term
+  const filteredSchemes = schemes.filter(
+    (scheme) =>
+      scheme['Scheme Name'].toLowerCase().includes(searchTerm.toLowerCase()) ||
+      scheme.Beneficiary.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const remainingSchemes = filteredSchemes.filter(
+    (scheme) => !featuredSchemes.includes(scheme)
   );
 
   if (isLoading) {
@@ -80,17 +88,26 @@ const SchemesPage = () => {
   }
 
   return (
-    <div className="min-h-screen  p-8">
+    <div className="min-h-screen p-8">
+      {/* Search Bar */}
+      <div className="mb-8">
+        <input
+          type="text"
+          placeholder="Search schemes by name or beneficiary..."
+          className="w-full rounded-lg border border-gray-300 p-4 text-gray-800 shadow focus:outline-none focus:ring-2 focus:ring-[rgba(67,24,255,0.85)]"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {/* Featured Schemes Section */}
       <div className="mb-12">
         <div className="mb-6 flex items-center gap-3">
           <Sparkles className="h-6 w-6 text-[rgba(67,24,255,0.85)]" />
-          <h2 className="text-2xl font-bold text-gray-800">
-            Featured Schemes
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">Featured Schemes</h2>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {featuredSchemes.map((scheme, index) => (
+          {featuredSchemes.map((scheme) => (
             <div
               key={scheme['Sl No']}
               className="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -104,14 +121,17 @@ const SchemesPage = () => {
               </h3>
               <div className="mb-4 flex items-center gap-2">
                 <Users className="h-4 w-4 text-gray-400" />
-                <p className="text-sm text-gray-600">
-                  {scheme.Beneficiary}
-                </p>
+                <p className="text-sm text-gray-600">{scheme.Beneficiary}</p>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-[rgba(67,24,255,0.85)]">
+                <a
+                  href={`https://sjd.kerala.gov.in/${scheme.Link}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-[rgba(67,24,255,0.85)]"
+                >
                   View Details
-                </span>
+                </a>
                 <ArrowRight className="h-5 w-5 transform text-[rgba(67,24,255,0.85)] transition-transform group-hover:translate-x-1" />
               </div>
             </div>
@@ -123,9 +143,7 @@ const SchemesPage = () => {
       <div>
         <div className="mb-6 flex items-center gap-3">
           <Users className="h-6 w-6 text-[rgba(67,24,255,0.85)]" />
-          <h2 className="text-2xl font-bold text-gray-800">
-            All Available Schemes
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">All Available Schemes</h2>
         </div>
         <div className="overflow-hidden rounded-xl bg-white shadow-lg">
           <div className="overflow-x-auto">
@@ -154,13 +172,16 @@ const SchemesPage = () => {
                         {scheme['Scheme Name']}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {scheme.Beneficiary}
-                    </td>
+                    <td className="px-6 py-4 text-gray-600">{scheme.Beneficiary}</td>
                     <td className="px-6 py-4 text-right">
-                      <button className="rounded-lg bg-[rgba(67,24,255,0.1)] px-4 py-2 text-sm font-medium text-[rgba(67,24,255,0.85)] opacity-0 transition-opacity group-hover:opacity-100">
+                      <a
+                        href={`https://sjd.kerala.gov.in/${scheme.Link}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-[rgba(67,24,255,0.1)] px-4 py-2 text-sm font-medium text-[rgba(67,24,255,0.85)] opacity-0 transition-opacity group-hover:opacity-100"
+                      >
                         View Details
-                      </button>
+                      </a>
                     </td>
                   </tr>
                 ))}
