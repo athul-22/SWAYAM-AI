@@ -1,26 +1,26 @@
 [
   {
-    "name": "Marketplace",
+    "name": "Course",
     "status": "Approved",
-    "date": "24.Jan.2021",
+    "date": "9.Dec.2024",
     "progress": 30
   },
   {
-    "name": "Marketplace",
+    "name": "Course",
     "status": "Disable",
-    "date": "30.Dec.2021",
+    "date": "9.Dec.2024",
     "progress": 30
   },
   {
-    "name": "Marketplace",
+    "name": "Course",
     "status": "Error",
-    "date": "20.May.2021",
+    "date": "9.Dec.2024",
     "progress": 30
   },
   {
-    "name": "Marketplace",
+    "name": "Course",
     "status": "Approved",
-    "date": "12.Jul.2021",
+    "date": "9.Dec.2024",
     "progress": 30
   }
 ]

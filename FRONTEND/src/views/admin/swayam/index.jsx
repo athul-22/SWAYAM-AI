@@ -36,7 +36,7 @@ function Swayam() {
       try {
         const audio = new Audio();
         const encodedText = encodeURIComponent(text);
-        audio.src = `http://localhost:3001/api/text-to-speech?text=${encodedText}&lang=ml`;
+        audio.src = `http://localhost:5001/api/text-to-speech?text=${encodedText}&lang=ml`;
         
         audio.onplay = () => setIsSpeaking(true);
         audio.onended = () => setIsSpeaking(false);
@@ -131,7 +131,7 @@ function Swayam() {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.ogg');
 
-      const speechResponse = await fetch('http://localhost:3001/api/speech-to-text', {
+      const speechResponse = await fetch('http://localhost:5001/api/speech-to-text', {
         method: 'POST',
         body: formData,
       });
@@ -161,7 +161,7 @@ function Swayam() {
 
   const sendMessageToAI = async (message) => {
     try {
-      const response = await fetch('http://localhost:3001/api/chats', {
+      const response = await fetch('http://localhost:5001/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, needsMalayalamResponse: true }),

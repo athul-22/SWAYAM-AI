@@ -28,7 +28,7 @@ const Course = () => {
   const generateSections = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:3001/api/chat", {
+      const response = await fetch("http://localhost:5001/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const Course = () => {
           content: "",
           videoLinks: [],
           isOpen: false,
-          isLoading: false, // Add loading state for each section
+          isLoading: false, 
         })),
       }));
       setStep(3);
@@ -78,7 +78,7 @@ const Course = () => {
       });
 
       // Fetch detailed content
-      const contentResponse = await fetch("http://localhost:3001/api/chat", {
+      const contentResponse = await fetch("http://localhost:5001/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +89,7 @@ const Course = () => {
       });
 
       const contentData = await contentResponse.json();
-      const detailedContent = contentData?.message || "Content could not be generated."; // Fallback content
+      const detailedContent = contentData?.message || "Content could not be generated."; 
 
       // Fetch YouTube links
       const videoResponse = await fetch(
@@ -105,9 +105,9 @@ const Course = () => {
             title: video.snippet.title,
             thumbnail: video.snippet.thumbnails.medium.url,
           }))
-        : []; // Default to empty array if items are undefined
+        : [];
 
-      // Update only the current section's content and video links
+      
       setCourseData((prev) => {
         const updatedCurriculum = [...prev.curriculum];
         updatedCurriculum[index] = {
