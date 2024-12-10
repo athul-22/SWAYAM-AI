@@ -5,6 +5,45 @@ import {
   Edit2
 } from "lucide-react";
 
+const SkeletonHero = () => (
+  <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-to-r from-gray-200 to-gray-300 p-8 shadow-lg">
+    <div className="relative z-10 flex items-center gap-8">
+      <div className="h-32 w-32 animate-pulse rounded-full bg-gray-300"></div>
+      <div className="space-y-4 flex-1">
+        <div className="space-y-2">
+          <div className="h-3 w-24 rounded bg-gray-300"></div>
+          <div className="h-8 w-48 rounded bg-gray-300"></div>
+        </div>
+        <div className="space-y-2">
+          <div className="h-3 w-20 rounded bg-gray-300"></div>
+          <div className="h-6 w-32 rounded bg-gray-300"></div>
+        </div>
+        <div className="flex gap-4">
+          <div className="h-10 w-32 rounded-full bg-gray-300"></div>
+          <div className="h-10 w-32 rounded-full bg-gray-300"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const SkeletonInfoCard = () => (
+  <div className="rounded-xl bg-white p-6 shadow-lg">
+    <div className="mb-6 h-6 w-48 rounded bg-gray-200"></div>
+    <div className="grid gap-6 md:grid-cols-2">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-gray-200"></div>
+          <div className="space-y-2">
+            <div className="h-3 w-20 rounded bg-gray-200"></div>
+            <div className="h-4 w-32 rounded bg-gray-200"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const ProfileOverview = () => {
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,13 +57,57 @@ const ProfileOverview = () => {
       setIsLoading(false);
     };
 
-    setTimeout(loadUserData, 1000);
+    setTimeout(loadUserData, 3000);
   }, []);
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-dashed border-blue-500"></div>
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="relative after:absolute after:inset-0 after:animate-[shimmer_2s_infinite] after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent">
+          <SkeletonHero />
+          <div className="grid gap-8 lg:grid-cols-12">
+            <div className="lg:col-span-8 space-y-8">
+              <SkeletonInfoCard />
+              <div className="rounded-xl bg-white p-6 shadow-lg">
+                <div className="mb-4 h-6 w-32 rounded bg-gray-200"></div>
+                <div className="flex flex-wrap gap-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-8 w-24 rounded-full bg-gray-200"></div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-xl bg-white p-6 shadow-lg">
+                <div className="mb-6 h-6 w-48 rounded bg-gray-200"></div>
+                <div className="h-4 w-32 rounded bg-gray-200"></div>
+              </div>
+            </div>
+            <div className="lg:col-span-4 space-y-8">
+              <div className="rounded-xl bg-white p-6 shadow-lg">
+                <div className="mb-4 h-6 w-40 rounded bg-gray-200"></div>
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <div className="h-4 w-24 rounded bg-gray-200"></div>
+                    <div className="h-4 w-16 rounded bg-gray-200"></div>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-200"></div>
+                  <div className="flex justify-between">
+                    <div className="h-3 w-12 rounded bg-gray-200"></div>
+                    <div className="h-3 w-16 rounded bg-gray-200"></div>
+                    <div className="h-3 w-12 rounded bg-gray-200"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-xl bg-white p-6 shadow-lg">
+                <div className="mb-6 h-6 w-36 rounded bg-gray-200"></div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-14 rounded-lg bg-gray-200"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -40,7 +123,7 @@ const ProfileOverview = () => {
         <div className="relative z-10 flex items-center gap-8">
           <div className="animate-slideInLeft h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-white shadow-xl">
             <div className="flex h-full w-full items-center justify-center bg-blue-100 text-4xl font-bold text-blue-600">
-              {userData.fullName.charAt(1)}
+              {userData.fullName.charAt(0)}
             </div>
           </div>
           <div className="animate-slideInRight space-y-2">

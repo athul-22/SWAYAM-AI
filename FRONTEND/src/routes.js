@@ -12,6 +12,8 @@ import Swayam from "../src/views/admin/swayam/index";
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
+import Updates from '../src/views/admin/updates/index';
+
 // Icon Imports
 import {
   MdHome,
@@ -22,6 +24,9 @@ import {
 } from "react-icons/md";
 
 import { BsRobot } from "react-icons/bs";
+
+import { PiNotification } from "react-icons/pi";
+
 
 
 // const routes = [
@@ -85,6 +90,14 @@ const routes = [
     path: "swayam",
     icon: <BsRobot className="h-6 w-6" />,
     component: <Swayam />,
+    showInMenu: true,
+  },
+  {
+    name: "Updates",
+    layout: "/admin",
+    path: "updates",
+    icon: <PiNotification className="h-6 w-6" />,
+    component: <Updates />,
     showInMenu: true,
   },
   {
